@@ -1,0 +1,37 @@
+#!/usr/local/bin/node
+
+let request = require("request");
+let url = "https://www.bbc.co.uk/news";
+let parts = url.split('/');
+parts.pop();
+let domain = parts.join('/')
+
+const jsdom = require("jsdom");
+const { JSDOM } = jsdom;
+
+request(url, function(error, response, body) {
+  // Simulate a Document Object Model.
+  let { document } = (new JSDOM(body)).window;
+  let stories = document.querySelectorAll(".nw-c-most-read__items > ol > li > span > div > a");
+
+  console.log("\n");
+
+  console.log(`BBC News ${stories.length} most read stories`); 
+
+  console.log("\n\n");
+
+  stories.forEach(function(newsLink) {
+    let link = domain + newsLink.href;
+
+    request(link, function(error, response, body) {
+      // Simulate a Document Object Model.
+      let { document } = (new JSDOM(body)).window;
+      let story = document.querySelectorAll(".story-body__inner > p");
+
+      story.forEach(function(para){
+        console.log(para.textContent);
+      });
+      console.log("\n\n\n\n\n");
+    });
+  });
+});
