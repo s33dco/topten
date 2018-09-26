@@ -1,5 +1,4 @@
 #!/usr/local/bin/node
-
 let request = require("request");
 let url = "https://www.bbc.co.uk/news";
 let parts = url.split('/');
@@ -7,23 +6,22 @@ parts.pop();
 let domain = parts.join('/')
 const jsdom = require("jsdom");
 const { JSDOM } = jsdom;
-
 request(url, function(error, response, body) {
   // scrape top ten stories.
   let { document } = (new JSDOM(body)).window;
   let stories = document.querySelectorAll(".nw-c-most-read__items > ol > li > span > div > a");
   console.log(`\nBBC News ${stories.length} most read stories\n`); 
-
   stories.forEach(function(newsLink) {
     let link = domain + newsLink.href;
     request(link, function(error, response, body) {
-      // grab title and paragrpahs from page
       let { document } = (new JSDOM(body)).window;      
       let story = document.querySelectorAll(".story-body__inner > p");
+      let title = document.querySelector(".story-body > h1");
+      console.log(`${title.textContent}\n`);
       story.forEach(function(para){
-        console.log(`${para.textContent}\n`);
+      console.log(`${para.textContent}\n`);
       });
-      console.log(`\n\n\---\n\n`);
+    console.log(`\n---\n`);
     });
   });
 });
